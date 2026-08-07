@@ -58,11 +58,15 @@ Agora a coluna vencedora **é o único bloco escuro no meio da página clara**:
 | Título | 17px, cinza `--ink-3` | 21px, off-white |
 | Itens | 14px, **riscados** | 15px, off-white |
 | Elevação | nenhuma | sombra + selo "Recomendado" |
-| Posição | recuada 18px (≥768px) | alinhada ao topo |
+| Altura | mesma (grid `stretch`) | mesma (grid `stretch`) |
 
 O `line-through` nos itens da esquerda faz o trabalho semântico: aquilo é o que
-a paciente **não** vai viver. O recuo de 18px só existe no desktop; no mobile as
-colunas empilham e a ordem já conta a história (problema → solução).
+a paciente **não** vai viver.
+
+⚠️ **Não use `items-start` nem `margin-top` neste grid.** Já tentei os dois pra
+"rebaixar" a coluna perdedora e o efeito foi ruim: cada coluna passa a ter a
+própria altura (217px vs 288px) e a base das caixas deixa de fechar. O peso
+visual precisa vir de cor, tamanho e selo — não de deslocamento.
 
 Contraste conferido na coluna escura: título 6.62:1, itens 6.08:1, selo 6.62:1.
 

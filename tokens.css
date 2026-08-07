@@ -519,10 +519,13 @@ body.menu-open .wpp-fab { display: none; }
   border: 1px solid var(--linha);
   opacity: .92;
 }
-@media (min-width: 768px) {
-  /* fica um degrau abaixo, reforçando a hierarquia sem precisar de rótulo */
-  .comp-col--off { margin-top: 18px; }
-}
+
+/* As duas colunas esticam para a mesma altura (padrão do grid) e o conteúdo
+   fica no topo — assim a base fecha alinhada, independente do nº de itens. */
+.comp-col { display: flex; flex-direction: column; }
+/* Sem recuo: com margin-top a base das duas colunas não fechava, e era isso
+   que dava a sensação de desalinho. A hierarquia já vem do fundo sólido, do
+   tamanho do título e do selo — o degrau era excesso. */
 .comp-titulo-off { color: var(--ink-3); }
 .comp-item-off {
   color: var(--ink-3);
