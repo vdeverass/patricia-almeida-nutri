@@ -1,0 +1,559 @@
+/* ============================================================================
+   PATRÍCIA ALMEIDA NUTRI — camada custom
+
+   Estrutura e movimentos: templates/dark-impact (nav pill, marquee, cards com
+   borda de acento, shine, reveal, FAB).
+   Paleta: referência brunaburti.com.br (captura Vibe Cloner, 06/08/2026).
+
+   O site da Bruna usa oklch(); os hex abaixo são a conversão exata:
+     oklch(0.977 0.007 85)  → #FAF7F2  fundo base
+     oklch(0.94  0.012 85)  → #EFEBE2  superfície
+     oklch(0.88  0.015 90)  → #DBD7CD  bordas
+     oklch(0.24  0.012 260) → #1C1F25  texto forte
+     oklch(0.5   0.015 250) → #5D646C  texto corpo
+     oklch(0.62  0.025 155) → #7B8B80  sálvia (botões)
+     oklch(0.44  0.028 160) → #45584D  sálvia escura
+     oklch(0.68  0.055 45)  → #B68E7C  rosé (eyebrows)
+
+   BASE CLARA. Só o hero e o CTA final são escuros — é o que sobrou do impacto
+   do Dark Impact sem deixar a página agressiva.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Claros — o corpo da página */
+  --lt1: #faf7f2;         /* fundo base */
+  --lt2: #efebe2;         /* superfície elevada / card */
+  --lt3: #ffffff;         /* card sobre superfície */
+  --linha: #dbd7cd;       /* bordas */
+
+  /* Escuros — só hero e CTA final */
+  --dk1: #22271f;         /* verde-grafite: mesmo matiz da sálvia, bem escuro */
+  --dk0: #1a1e18;         /* vinheta do CTA */
+
+  /* Texto */
+  --ink: #1c1f25;         /* títulos e texto forte */
+  --ink-2: #5d646c;       /* corpo — oklch(.5 .015 250) da Bruna, 5.6:1 */
+  --ink-3: #555c63;       /* legendas — oklch(.47), 6.3:1 (o #8a9098 dela dá 3:1) */
+
+  /* Acentos.
+     A Bruna usa sálvia #7B8B80 no botão com texto branco — isso dá 3.1:1 e
+     reprova AA. Por isso existem duas versões: a dela para superfícies grandes
+     e decorativos, e a escura para texto pequeno e fundo de botão. */
+  --salvia: #7b8b80;      /* decorativo e bordas — NUNCA como fundo de texto */
+  --salvia-band: #4d5c52; /* faixa sólida §6 — oklch(.46), texto claro a 6.6:1 */
+  --salvia-ink: #45584d;  /* botão e texto pequeno — AA */
+  --salvia-d: #364438;    /* hover */
+  --rose: #b68e7c;        /* eyebrows sobre ESCURO e decorativos */
+  --rose-ink: #755141;    /* eyebrow sobre CLARO — oklch(.47), 6.5:1 */
+
+  /* Texto sobre as seções escuras */
+  --w70: rgba(250, 247, 242, 0.86);
+  --w50: rgba(250, 247, 242, 0.68);
+  --w40: rgba(250, 247, 242, 0.58);
+  --w15: rgba(250, 247, 242, 0.16);
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* ---------------------------------------------------------------- base --- */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--lt1);
+  color: var(--ink);
+  font-family: Barlow, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  scroll-behavior: smooth;
+}
+
+a { color: inherit; text-decoration: none; }
+
+::selection { background: var(--salvia); color: #fff; }
+
+:where(a, button, [role="button"], input, textarea, select):focus-visible {
+  outline: 2px solid var(--salvia-ink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* --------------------------------------------------------- tipografia --- */
+/* Fraunces no lugar da Cormorant: mesma família de serifada alta editorial,
+   com mais peso e personalidade. Caixa mista sempre — serifada de display em
+   caixa-alta fica pesada e datada. */
+
+.font-display {
+  font-family: Fraunces, "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 40, "WONK" 1, "opsz" 120;
+  letter-spacing: -0.012em;
+}
+
+.font-sub {
+  font-family: Fraunces, "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 30, "WONK" 0, "opsz" 40;
+  letter-spacing: -0.004em;
+}
+
+.h-hero       { font-size: clamp(40px, 6.4vw, 76px); line-height: 1.04; }
+.h-section    { font-size: clamp(32px, 4.6vw, 58px); line-height: 1.06; }
+.h-section-lg { font-size: clamp(36px, 5.2vw, 64px); line-height: 1.04; }
+
+/* Eyebrow — na Bruna é rosé, tracking largo, minúsculo */
+.eyebrow {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--rose-ink);
+}
+/* Sobre fundo escuro o rosé claro já passa AA e fica mais bonito */
+.sec-dark .eyebrow, .eyebrow-on-dark { color: var(--rose); }
+.eyebrow-mute { color: var(--ink-3); letter-spacing: 0.15em; font-size: 10px; }
+.sec-dark .eyebrow-mute { color: var(--w40); }
+
+/* ---------------------------------------------------------- container --- */
+
+.container-x {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+@media (min-width: 768px) { .container-x { padding-inline: 40px; } }
+
+/* --------------------------------------------------------------- card --- */
+/* A borda esquerda de 3px continua — é o movimento do Dark Impact — mas agora
+   em sálvia sobre fundo claro, o que a torna um detalhe e não um alerta. */
+
+.card-edge {
+  border-width: 1px 1px 1px 3px;
+  border-style: solid;
+  border-color: var(--linha) var(--linha) var(--linha) var(--salvia);
+}
+.card-edge-dark {
+  border-width: 1px 1px 1px 3px;
+  border-style: solid;
+  border-color: rgba(250,247,242,.10) rgba(250,247,242,.10) rgba(250,247,242,.10) var(--rose);
+}
+
+.ghost-num {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 32px;
+  line-height: 1;
+  opacity: 0.2;
+  color: var(--salvia);
+}
+.sec-dark .ghost-num { color: var(--rose); opacity: 0.35; }
+
+/* --------------------------------------------------------- shine text --- */
+/* Bem mais discreto que no Dark Impact: varre do sálvia ao rosé, sem brancos
+   estourados. Em base clara um shine forte fica espalhafatoso. */
+
+.shine-text, .shine-text-dark {
+  background-size: 250%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shine 6s linear infinite;
+}
+/* sobre claro */
+.shine-text-dark {
+  background-image: linear-gradient(90deg,
+    #45584d 0%, #45584d 28%,
+    #96634d 46%, #b68e7c 54%,
+    #45584d 72%, #45584d 100%);
+}
+/* sobre escuro */
+.shine-text {
+  background-image: linear-gradient(90deg,
+    #b68e7c 0%, #b68e7c 28%,
+    #d8b6a4 46%, #efdccf 54%,
+    #b68e7c 72%, #b68e7c 100%);
+}
+@keyframes shine {
+  0%   { background-position: 200% center; }
+  100% { background-position: -50% center; }
+}
+
+/* ------------------------------------------------------ botão shimmer --- */
+
+.btn-shimmer { position: relative; overflow: hidden; isolation: isolate; }
+.btn-shimmer > * { position: relative; z-index: 2; }
+.btn-shimmer::before {
+  content: "";
+  position: absolute;
+  top: -20%; left: -75%;
+  width: 55%; height: 140%;
+  background: linear-gradient(120deg,
+    rgba(255,255,255,0) 0%, rgba(255,255,255,0) 30%,
+    rgba(255,255,255,0.20) 50%,
+    rgba(255,255,255,0) 70%, rgba(255,255,255,0) 100%);
+  transform: skew(-20deg);
+  pointer-events: none;
+  z-index: 1;
+  animation: btn-shimmer 5.5s var(--ease) infinite;
+}
+@keyframes btn-shimmer {
+  0%        { left: -75%; }
+  55%, 100% { left: 175%; }
+}
+
+/* ------------------------------------------------------------ marquee --- */
+/* O conteúdo do track precisa estar DUPLICADO no HTML (2ª cópia com
+   aria-hidden), porque a animação anda exatos -50%. */
+
+.marquee-wrapper {
+  position: relative;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: marquee-left var(--marquee-speed, 40s) linear infinite;
+}
+@keyframes marquee-left {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+.marquee-wrapper:hover .marquee-track,
+.marquee-wrapper:focus-within .marquee-track,
+.marquee-wrapper.is-paused .marquee-track { animation-play-state: paused; }
+
+/* ------------------------------------------------- textura do hero --- */
+/* Borrão de luz no topo do hero. Desce devagar conforme a página rola
+   (--scroll é escrito pelo script, dentro de um requestAnimationFrame) e
+   some junto com o fim do hero — não fica pairando sobre a seção seguinte. */
+
+.hero-glow {
+  position: absolute;
+  z-index: 1;
+  top: -28vh;
+  left: 50%;
+  width: min(1100px, 105vw);
+  height: min(760px, 78vh);
+  pointer-events: none;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgba(182,142,124,.30) 0%, rgba(182,142,124,.12) 46%, transparent 78%),
+    radial-gradient(closest-side, rgba(123,139,128,.22) 0%, transparent 72%);
+  filter: blur(60px);
+  /* -50% centraliza; o eixo Y e a opacidade seguem a rolagem */
+  transform: translate3d(-50%, calc(var(--scroll, 0) * 190px), 0);
+  opacity: calc(1 - var(--scroll, 0) * 0.85);
+  will-change: transform, opacity;
+}
+@media (min-width: 768px) {
+  /* No desktop ele nasce mais à direita, atrás da coluna da foto */
+  .hero-glow { left: 64%; top: -32vh; }
+}
+
+/* ---------------------------------------------------------- reveal --- */
+/* O estado escondido só existe se o JS estiver vivo (classe .js posta por
+   script inline no <head>). Sem JS o conteúdo aparece — nunca seção em branco. */
+
+.js .reveal-init { opacity: 0; transform: translateY(24px); }
+
+/* Precisa dos DOIS seletores: `.js .reveal-init` tem especificidade (0,2,0),
+   então um `.reveal-in` sozinho (0,1,0) perderia e nada apareceria. */
+.reveal-init.reveal-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+}
+
+/* ------------------------------------------------------------ nav pill --- */
+/* Agora clara: vidro sobre off-white, com fio de borda em vez de sombra pesada. */
+
+.nav-pill {
+  background: rgba(250, 247, 242, 0.82);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  border: 1px solid var(--linha);
+  border-radius: 999px;
+  box-shadow: 0 8px 32px rgba(28, 31, 37, 0.08);
+  transition: height 250ms var(--ease), box-shadow 250ms var(--ease), background 250ms var(--ease);
+}
+/* Enquanto está sobre o hero escuro, a pill inverte pra não sumir */
+.nav-pill.on-dark {
+  background: rgba(34, 39, 31, 0.72);
+  border-color: rgba(250, 247, 242, 0.16);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+.nav-pill.on-dark .nav-link,
+.nav-pill.on-dark .nav-brand { color: var(--lt1); }
+
+.nav-link {
+  position: relative;
+  color: var(--ink-2);
+  transition: color 200ms var(--ease);
+}
+.nav-link:hover { color: var(--ink); }
+.nav-pill.on-dark .nav-link:hover { color: #fff; }
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -4px;
+  width: 100%; height: 2px;
+  background: var(--salvia);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 200ms var(--ease);
+}
+.nav-pill.on-dark .nav-link::after { background: var(--rose); }
+.nav-link:hover::after,
+.nav-link[aria-current="true"]::after { transform: scaleX(1); }
+
+/* --------------------------------------------------------- FAB WhatsApp --- */
+
+.wpp-fab {
+  position: fixed;
+  right: 16px; bottom: 16px;
+  z-index: 60;
+  width: 56px; height: 56px;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  background: #25d366;
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
+  animation: wpp-pulse 2.8s ease infinite;
+}
+@keyframes wpp-pulse {
+  0%, 100% { box-shadow: 0 10px 30px rgba(37,211,102,0.3), 0 0 0 0 rgba(37,211,102,0.38); }
+  70%      { box-shadow: 0 10px 30px rgba(37,211,102,0.3), 0 0 0 16px rgba(37,211,102,0); }
+}
+body.menu-open .wpp-fab { display: none; }
+
+/* ------------------------------------------------------------ utilidades --- */
+
+/* Costuras entre claro e escuro */
+.seam-to-dark  { height: 64px; background: linear-gradient(var(--lt1) 0%, var(--dk1) 100%); }
+.seam-to-light { height: 64px; background: linear-gradient(var(--dk1) 0%, var(--lt1) 100%); }
+
+/* Faixa sálvia sólida — o respiro que a Bruna usa entre blocos claros */
+.band-salvia { background: var(--salvia-band); color: var(--lt1); }
+
+/* Textura pontilhada discreta */
+.dots-light {
+  background-image: radial-gradient(rgba(28,31,37,0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.dots-dark {
+  background-image: radial-gradient(rgba(250,247,242,0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.chip-strip { scrollbar-width: none; }
+.chip-strip::-webkit-scrollbar { display: none; }
+
+/* ---------------------------------------------------- prefers-reduced --- */
+
+@media (prefers-reduced-motion: reduce) {
+  .shine-text, .shine-text-dark,
+  .btn-shimmer::before,
+  .marquee-track,
+  .wpp-fab { animation: none !important; }
+
+  /* O borrão para de acompanhar a rolagem, mas continua visível */
+  .hero-glow { transform: translate3d(-50%, 0, 0) !important; opacity: .8 !important; }
+
+  .shine-text      { -webkit-text-fill-color: var(--rose);       color: var(--rose); }
+  .shine-text-dark { -webkit-text-fill-color: var(--salvia-ink); color: var(--salvia-ink); }
+
+  .js .reveal-init { opacity: 1; transform: none; }
+  .reveal-init.reveal-in { transition: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* ------------------------------------------------ faixa sálvia (§6) --- */
+/* Número fantasma sobre a faixa sólida: o sálvia sobre sálvia sumiria,
+   então aqui ele é off-white rebaixado. */
+.ghost-num-band {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--lt1);
+  opacity: 0.42;
+}
+.band-salvia .eyebrow { color: #f0e4dd; }
+.band-salvia .shine-text {
+  background-image: linear-gradient(90deg,
+    #f4e6dd 0%, #f4e6dd 28%,
+    #ffffff 46%, #ffffff 54%,
+    #f4e6dd 72%, #f4e6dd 100%);
+}
+
+/* O ponto da marca na nav: rosé claro sobre a pill clara dá 2.75:1.
+   Acompanha o estado da pill. */
+.nav-dot { color: var(--rose-ink); }
+.nav-pill.on-dark .nav-dot { color: var(--rose); }
+
+/* Faixa sálvia §6.
+   Os cards de vidro CLAREIAM o fundo por baixo do texto: rgba(250,247,242,.12)
+   sobre #4d5c52 vira #626f65, e aí o corpo cai pra 4.16:1. Por isso o vidro
+   aqui é ESCURO — abaixa o fundo em vez de levantar. */
+.band-salvia .eyebrow-mute { color: rgba(250,247,242,.78); }
+.band-salvia .card-vidro {
+  background: rgba(26, 30, 24, 0.22);
+  border: 1px solid rgba(250, 247, 242, 0.20);
+}
+
+/* ---------------------------------------------------------- hero img --- */
+/* A foto é um retrato (1:1.09) usado num hero landscape. object-position faz
+   todo o enquadramento — assim nada é recortado no build e cada viewport
+   escolhe o melhor pedaço.
+   Mobile: rosto centralizado e alto. Desktop: rosto à direita, longe do texto. */
+.hero-img { object-position: 50% 10%; }
+
+/* No desktop a foto vira uma coluna à direita em vez de ocupar a tela toda.
+   Isso resolve o zoom: um retrato esticado num hero landscape sempre aproxima
+   demais. Como coluna, ela aparece inteira e o texto ganha a esquerda limpa. */
+@media (min-width: 768px) {
+  /* !important porque o .inset-0 do Tailwind (left:0) vence por ordem de
+     cascata e jogaria a coluna de volta pra esquerda. */
+  .hero-media {
+    left: auto !important;
+    right: 0 !important;
+    width: 54%;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 26%, #000 100%);
+            mask-image: linear-gradient(90deg, transparent 0%, #000 26%, #000 100%);
+  }
+  .hero-img { object-position: 58% 18%; }
+}
+@media (min-width: 1280px) {
+  .hero-media { width: 50%; }
+  .hero-img { object-position: 55% 16%; }
+}
+
+/* ------------------------------------------- carrossel de depoimentos --- */
+/* Carrossel nativo: overflow-x + scroll-snap. As setas só empurram o scroll,
+   então arrastar, roda do mouse, trackpad e teclado continuam funcionando
+   mesmo se o JS falhar. Sem biblioteca. */
+
+.depo-track {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 4px 4px 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.depo-track::-webkit-scrollbar { display: none; }
+.depo-track:focus-visible { outline: 2px solid var(--salvia-ink); outline-offset: 4px; border-radius: 12px; }
+
+.depo-card {
+  flex: 0 0 auto;
+  /* 84vw no mobile (deixa espiar o próximo card, sinalizando que arrasta);
+     no desktop 310px, pra 4 cards não caberem justos na tela — se coubessem,
+     o carrossel não teria o que deslizar. */
+  width: min(84vw, 310px);
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+  background: var(--lt3);                 /* branco, como pedido */
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(28, 31, 37, 0.05);
+  transition: box-shadow 250ms var(--ease), transform 250ms var(--ease);
+}
+.depo-card:hover {
+  box-shadow: 0 10px 28px rgba(28, 31, 37, 0.10);
+  transform: translateY(-2px);
+}
+
+.carrossel-btn {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--linha);
+  background: var(--lt3);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background 200ms var(--ease), color 200ms var(--ease), border-color 200ms var(--ease);
+}
+.carrossel-btn:hover:not(:disabled) {
+  background: var(--salvia-ink);
+  border-color: var(--salvia-ink);
+  color: var(--lt1);
+}
+/* O carrossel é infinito, então as setas nunca desabilitam.
+   A regra fica aqui só como rede de segurança se o loop for desligado. */
+.carrossel-btn:disabled { opacity: .35; cursor: default; }
+
+/* Clones do loop não devem ser lidos duas vezes por leitor de tela —
+   o aria-hidden é posto pelo script; isto só reforça que são decorativos. */
+.depo-card[data-clone] { user-select: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .depo-track { scroll-behavior: auto; }
+  .depo-card:hover { transform: none; }
+}
+
+/* ------------------------------------------------ comparativo (§7) --- */
+/* O problema anterior: as duas colunas tinham a mesma largura, o mesmo fundo
+   transparente e o mesmo tamanho de título. A única diferença era um filete de
+   2px no topo — invisível de relance. Num comparativo, a coluna que você quer
+   que vença precisa ter PESO, não um detalhe.
+   A vencedora agora é o único bloco escuro no meio da página clara. */
+
+/* — Coluna perdedora: recuada, sem cor, ligeiramente menor — */
+.comp-col--off {
+  background: transparent;
+  border: 1px solid var(--linha);
+  opacity: .92;
+}
+@media (min-width: 768px) {
+  /* fica um degrau abaixo, reforçando a hierarquia sem precisar de rótulo */
+  .comp-col--off { margin-top: 18px; }
+}
+.comp-titulo-off { color: var(--ink-3); }
+.comp-item-off {
+  color: var(--ink-3);
+  text-decoration: line-through;
+  text-decoration-color: rgba(85, 92, 99, .35);
+  text-decoration-thickness: 1px;
+}
+.comp-item-off svg { color: var(--ink-3); opacity: .7; }
+
+/* — Coluna vencedora: sálvia sólida, elevada, com selo — */
+.comp-col--on {
+  background: var(--salvia-band);
+  border: 1px solid var(--salvia-band);
+  box-shadow: 0 14px 40px rgba(34, 39, 31, .18);
+  position: relative;
+}
+.comp-titulo-on { color: var(--lt1); }
+.comp-item-on { color: rgba(250, 247, 242, .94); }
+.comp-item-on svg { color: #cfe0cd; }
+
+.comp-selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--lt1);
+  color: var(--salvia-band);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}

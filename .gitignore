@@ -1,0 +1,18 @@
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+
+# Segredos — esta LP é estática e não deve ter nenhum, mas é rede de segurança
+.env
+.env.*
+*.pem
+*.key
+
+# Temporários
+*.log
+node_modules/
