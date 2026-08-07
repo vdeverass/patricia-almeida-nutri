@@ -66,6 +66,33 @@ colunas empilham e a ordem já conta a história (problema → solução).
 
 Contraste conferido na coluna escura: título 6.62:1, itens 6.08:1, selo 6.62:1.
 
+### Cards de preço em 3D (§9)
+
+Os dois cards nascem inclinados no eixo Y (±16°, um para cada lado, como um
+folheto aberto) e se endireitam conforme a seção sobe pela viewport. O card da
+esquerda resolve primeiro, o da direita logo depois — **o desencontro é o que
+dá a sensação de profundidade**; se os dois animassem juntos, pareceria só um
+fade.
+
+Reproduz o efeito da referência do Elementor, mas **sem GSAP/ScrollTrigger**:
+
+- O progresso é a variável `--p` (0→1), escrita no mesmo `requestAnimationFrame`
+  que já cuida da nav e do borrão do hero. **Um único listener de scroll** para
+  os três efeitos da página.
+- Cada card tem sua própria janela dentro desse progresso, via `clamp()`:
+  card 1 anima de `0 → 0.55`, card 2 de `0.25 → 0.85`.
+- O `transform` inteiro é interpolado em CSS a partir de `--t` — nenhum estilo
+  é escrito por JS elemento a elemento.
+
+Cuidados:
+
+- Os cards **saíram do `.reveal-init`**. Duas animações disputando o mesmo
+  `transform` se anulam — o reveal venceria e o 3D nunca apareceria.
+- **No mobile o 3D é desligado** (`perspective: none`): em tela estreita a
+  inclinação vira ruído e arrisca overflow horizontal. Fica um fade-and-rise.
+- **Sem JS** (`html:not(.js-price)`) os cards aparecem retos e opacos.
+- `prefers-reduced-motion` zera o efeito.
+
 ### Borrão do hero (`.hero-glow`)
 
 Um halo terracota+sálvia desfocado (`blur(60px)`) no topo do hero. Desce até

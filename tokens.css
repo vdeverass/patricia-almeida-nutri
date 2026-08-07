@@ -557,3 +557,60 @@ body.menu-open .wpp-fab { display: none; }
   text-transform: uppercase;
   white-space: nowrap;
 }
+
+/* ------------------------------------------- cards de preço em 3D (§9) --- */
+/* Os dois cards nascem inclinados no eixo Y (um para cada lado, como um
+   folheto aberto) e se endireitam conforme a seção entra na tela.
+   O card da esquerda resolve primeiro, o da direita logo depois — o
+   desencontro é o que dá a sensação de profundidade.
+
+   Referência: efeito de scroll do Elementor com GSAP/ScrollTrigger.
+   Aqui é CSS puro: a variável --p (0→1) é escrita pelo mesmo
+   requestAnimationFrame que já cuida da nav e do borrão do hero, então
+   não há biblioteca nem um segundo listener de scroll. */
+
+.price-3d {
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+}
+
+.price-card {
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  /* clamp() prende o progresso de cada card na sua própria janela:
+     o card 1 anima de --p 0 → 0.55, o card 2 de 0.25 → 0.85. */
+  --t: 0;
+  transform:
+    perspective(1400px)
+    rotateY(calc((1 - var(--t)) * var(--giro, 16deg)))
+    rotateX(calc((1 - var(--t)) * 9deg))
+    translateX(calc((1 - var(--t)) * var(--desloc, -38px)))
+    translateY(calc((1 - var(--t)) * 26px))
+    scale(calc(0.94 + var(--t) * 0.06));
+  opacity: calc(0.35 + var(--t) * 0.65);
+}
+
+/* Esquerda gira para dentro, direita para o outro lado */
+.price-card--1 { --giro:  16deg; --desloc: -38px; --t: clamp(0, calc(var(--p, 0) / 0.55), 1); }
+.price-card--2 { --giro: -16deg; --desloc:  38px; --t: clamp(0, calc((var(--p, 0) - 0.25) / 0.6), 1); }
+
+/* Sem JS o --p nunca é escrito. Um :not() com o marcador que o script põe
+   garante que os cards apareçam retos e opacos nesse caso. */
+html:not(.js-price) .price-card {
+  transform: none;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .price-card { transform: none !important; opacity: 1 !important; }
+}
+
+/* No mobile o 3D atrapalha: os cards empilham e a inclinação vira ruído.
+   Fica só um fade-and-rise discreto. */
+@media (max-width: 767px) {
+  .price-3d { perspective: none; }
+  .price-card {
+    transform: translateY(calc((1 - var(--t)) * 20px));
+    opacity: calc(0.5 + var(--t) * 0.5);
+  }
+}
